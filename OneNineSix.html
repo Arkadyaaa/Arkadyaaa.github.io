@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>196 Calculator</title>
+    <style>
+        body {
+            margin: 20px;
+            margin-left: 20px;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: rgb(40, 40, 40);
+        }
+
+        #steps {
+            height: 85vh;
+            overflow-y: scroll;
+            color: #ffffff;
+        }
+
+        #stopButton {
+            display: none;
+        }
+
+        /* Style for the steps text */
+        .step {
+            color: #ffffff;
+            padding: 5px;
+        }
+
+        label,
+        h1 {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <h1>196 Calculator</h1>
+
+    <label for="numberInput">Enter Number: </label>
+    <input type="number" id="numberInput">
+    <button id="calculateButton" onclick="calculateOneNineSix()">Calculate</button>
+    <button id="stopButton" onclick="stopCalculation()">Stop</button>
+
+    <div id="steps"></div>
+
+    <script>
+        let calculating = false;
+
+        function reverseNumber(entry) {
+            let reversed = BigInt(0);
+
+            while (entry !== BigInt(0)) {
+                const quotientAndRemainder = entry / BigInt(10);
+                const digit = entry % BigInt(10);
+                reversed = reversed * BigInt(10) + digit;
+                entry = quotientAndRemainder;
+            }
+
+            return reversed;
+        }
+
+        function isPalindrome(entry) {
+            return entry === reverseNumber(entry);
+        }
+
+        async function calculateOneNineSix() {
+            const numberInput = document.getElementById("numberInput");
+            const stepsDisplay = document.getElementById("steps");
+            const calculateButton = document.getElementById("calculateButton");
+            const stopButton = document.getElementById("stopButton");
+            const input = BigInt(numberInput.value);
+
+            // Clear the content of the "steps" div
+            stepsDisplay.innerHTML = '';
+
+            let entry = input;
+            let steps = 0;
+            calculating = true;
+
+            function scrollDown() {
+                stepsDisplay.scrollTop = stepsDisplay.scrollHeight;
+            }
+
+            function addStepText(text) {
+                const stepElement = document.createElement("div");
+                stepElement.classList.add("step");
+                stepElement.textContent = text;
+                stepsDisplay.appendChild(stepElement);
+                scrollDown();
+            }
+
+            calculateButton.style.display = "none";
+            stopButton.style.display = "inline";
+
+            while (!isPalindrome(entry) && calculating) {
+                await new Promise(resolve => setTimeout(resolve, 0)); // Add a small delay for visualization
+                const reversed = reverseNumber(entry);
+                entry += reversed;
+                addStepText(`${entry}`);
+                steps++;
+            }
+
+            if (calculating) {
+                addStepText(`Total steps: ${steps}`);
+                calculateButton.style.display = "inline";
+                stopButton.style.display = "none";
+            }
+        }
+
+        function stopCalculation() {
+            calculating = false;
+            document.getElementById("calculateButton").style.display = "inline";
+            document.getElementById("stopButton").style.display = "none";
+        }
+    </script>
+</body>
+</html>
